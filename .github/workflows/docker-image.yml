@@ -1,0 +1,94 @@
+name: Build Temaki Sprite And Upload To Google Drive
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-sprite:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
+
+      # =========================
+      # 1. 安装 Node（用于 spreet）
+      # =========================
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # =========================
+      # 2. 安装 sprite 工具
+      # =========================
+      - name: Install spreet
+        run: |
+          npm install -g spreet
+
+      # =========================
+      # 3. 拉取 Temaki
+      # =========================
+      - name: Clone Temaki Icons
+        run: |
+          git clone https://github.com/rapideditor/temaki.git
+
+      # =========================
+      # 4. 生成 sprite
+      # =========================
+      - name: Build Sprite
+        run: |
+          mkdir -p output
+          spreet temaki/icons output/sprite
+
+      # =========================
+      # 5. 查看结果
+      # =========================
+      - name: List Output
+        run: |
+          ls -lah output
+
+      # =========================
+      # 6. 压缩 sprite
+      # =========================
+      - name: Compress Sprite
+        run: |
+          zip -r temaki-sprite.zip output/
+
+      # =========================
+      # 7. 安装 rclone
+      # =========================
+      - name: Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+
+      # =========================
+      # 8. 配置 rclone
+      # =========================
+      - name: Setup rclone config
+        env:
+          RCLONE_SECRET_DATA: ${{ secrets.GOOGLE_FSXEDX_DRIVE }}
+        run: |
+          mkdir -p ~/.config/rclone
+          echo "$RCLONE_SECRET_DATA" > ~/.config/rclone/rclone.conf
+
+      # =========================
+      # 9. 创建目录
+      # =========================
+      - name: Create Drive Folder
+        run: |
+          rclone mkdir Google:/temaki || true
+
+      # =========================
+      # 10. 上传 sprite
+      # =========================
+      - name: Upload Sprite
+        run: |
+          rclone copy temaki-sprite.zip Google:/temaki/
+
+      # =========================
+      # 11. 验证
+      # =========================
+      - name: Verify Upload
+        run: |
+          rclone lsf Google:/temaki/
