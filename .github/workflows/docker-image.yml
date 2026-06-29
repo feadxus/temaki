@@ -24,7 +24,7 @@ jobs:
       # =========================
       - name: Install spreet
         run: |
-          npm install -g spreet
+          cargo install spreet
 
       # =========================
       # 3. 拉取 Temaki
