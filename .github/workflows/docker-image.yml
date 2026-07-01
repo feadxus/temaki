@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v7.0.0
 
       # =========================================================
       # 1. 自动从 GitHub Release 下载最新的 spreet 二进制文件
