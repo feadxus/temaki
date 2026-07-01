@@ -15,7 +15,7 @@ jobs:
       # 1. 自动从 GitHub Release 下载最新的 spreet 二进制文件
       # =========================================================
       - name: Download Spreet Binary
-        uses: robinraju/release-downloader@v1.10
+        uses: robinraju/release-downloader@v1.13
         with:
           repository: "charlie-goodman/spreet"
           latest: true
